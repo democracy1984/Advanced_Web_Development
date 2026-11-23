@@ -1,0 +1,14 @@
+{
+    "name": "kozak/advanced-web-lab7",
+    "description": "Lab 7: templating and database",
+    "type": "project",
+    "require": {
+        "php": ">=8.2",
+        "twig/twig": "^3.30"
+    },
+    "autoload": {
+        "classmap": [
+            "src/"
+        ]
+    }
+}

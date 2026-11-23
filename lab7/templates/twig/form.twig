@@ -1,0 +1,110 @@
+{% extends 'layout.twig' %}
+
+{% block content %}
+    {% if flashSuccess %}
+        <div class="alert alert-success">{{ flashSuccess }}</div>
+    {% endif %}
+
+    {% if flashError %}
+        <div class="alert alert-error">{{ flashError }}</div>
+    {% endif %}
+
+    {% if errors.form is defined %}
+        <div class="alert alert-error">{{ errors.form }}</div>
+    {% endif %}
+
+    <section class="panel">
+        <h2>{{ isEdit ? 'Редактирование рецепта' : 'Новый рецепт' }}</h2>
+        <p>{{ isEdit ? 'Измените данные и сохраните.' : 'Заполните все обязательные поля.' }}</p>
+
+        <form method="post" action="{{ formAction }}">
+            <input type="hidden" name="csrf_token" value="{{ csrfToken }}">
+            <input type="hidden" name="action" value="{{ isEdit ? 'update' : 'create' }}">
+
+            {% if isEdit %}
+                <input type="hidden" name="id" value="{{ formData.id }}">
+            {% endif %}
+
+            <div class="form-grid">
+                <div class="field field-wide">
+                    <label for="title">Название рецепта</label>
+                    <input type="text" id="title" name="title" value="{{ formData.title|default('') }}" required minlength="3" maxlength="100">
+                    {% if errors.title is defined %}<p class="field-error">{{ errors.title }}</p>{% endif %}
+                </div>
+
+                <div class="field">
+                    <label for="author">Автор</label>
+                    <input type="text" id="author" name="author" value="{{ formData.author|default('') }}" required minlength="2" maxlength="80">
+                    {% if errors.author is defined %}<p class="field-error">{{ errors.author }}</p>{% endif %}
+                </div>
+
+                <div class="field">
+                    <label for="category">Категория</label>
+                    <select id="category" name="category" required>
+                        <option value="">Выберите категорию</option>
+                        {% for id, name in categories %}
+                            <option value="{{ id }}" {{ (formData.category|default('')) == id ? 'selected' : '' }}>{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                    {% if errors.category is defined %}<p class="field-error">{{ errors.category }}</p>{% endif %}
+                </div>
+
+                <div class="field">
+                    <label for="difficulty">Сложность</label>
+                    <select id="difficulty" name="difficulty" required>
+                        <option value="">Выберите сложность</option>
+                        {% for value, label in difficulties %}
+                            <option value="{{ value }}" {{ (formData.difficulty|default('')) == value ? 'selected' : '' }}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    {% if errors.difficulty is defined %}<p class="field-error">{{ errors.difficulty }}</p>{% endif %}
+                </div>
+
+                <div class="field">
+                    <label for="prep_time">Время приготовления, мин</label>
+                    <input type="number" id="prep_time" name="prep_time" value="{{ formData.prep_time|default('30') }}" required min="1" max="1440">
+                    {% if errors.prep_time is defined %}<p class="field-error">{{ errors.prep_time }}</p>{% endif %}
+                </div>
+
+                <div class="field">
+                    <label for="created_at">Дата создания</label>
+                    <input type="date" id="created_at" name="created_at" value="{{ formData.created_at }}" required>
+                    {% if errors.created_at is defined %}<p class="field-error">{{ errors.created_at }}</p>{% endif %}
+                </div>
+
+                <div class="field field-wide">
+                    <label for="ingredients">Ингредиенты</label>
+                    <textarea id="ingredients" name="ingredients" rows="4" required minlength="10" maxlength="2000">{{ formData.ingredients|default('') }}</textarea>
+                    {% if errors.ingredients is defined %}<p class="field-error">{{ errors.ingredients }}</p>{% endif %}
+                </div>
+
+                <div class="field field-wide">
+                    <label for="instructions">Приготовление</label>
+                    <textarea id="instructions" name="instructions" rows="5" required minlength="20" maxlength="5000">{{ formData.instructions|default('') }}</textarea>
+                    {% if errors.instructions is defined %}<p class="field-error">{{ errors.instructions }}</p>{% endif %}
+                </div>
+
+                <fieldset class="field field-wide tags-field">
+                    <legend>Теги</legend>
+                    <div class="checkbox-grid">
+                        {% for value, label in tags %}
+                            <label class="checkbox">
+                                <input type="checkbox" name="tags[]" value="{{ value }}" {{ value in (formData.tags|default([])) ? 'checked' : '' }}>
+                                <span>{{ label }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                    {% if errors.tags is defined %}<p class="field-error">{{ errors.tags }}</p>{% endif %}
+                </fieldset>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn">{{ isEdit ? 'Сохранить изменения' : 'Сохранить рецепт' }}</button>
+                <a href="index.php?engine={{ engine }}" class="btn btn-secondary">Отмена</a>
+                {% if isEdit %}
+                    <button type="submit" name="action" value="delete" class="btn btn-danger" onclick="return confirm('Удалить рецепт?')">Удалить</button>
+                {% endif %}
+            </div>
+        </form>
+    </section>
+{% endblock %}
